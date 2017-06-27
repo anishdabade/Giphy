@@ -3,6 +3,14 @@ button {
 	background: #00bfff;
 }
 
+#animal-input {
+	margin-top: 10px;
+}
+
 #add-animal {
-	
+	background: #fa8072;
+}
+
+body {
+	background: #fff8dc;
 }
