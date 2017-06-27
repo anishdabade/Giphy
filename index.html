@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <title>Giphy API</title>
+  <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <link rel="stylesheet" type="text/css" href="style.css">
+</head>
+
+<body>
+<div class="container">
+  <div class= "row">
+    <div id="buttons-view"></div>
+  <!-- <form id="animal-form"> -->
+      <label for="animal-input">Add an animal</label>
+      <input type="text" id="animal-input"><br>
+
+      <!-- Button triggers new animals to be added -->
+      <input id="add-animal" type="submit" value="Submit"><br><br>
+    </div>
+  <!-- </form> -->
+  <div class="row">
+    <div class="col-md-3"> 
+      <div id="animals-view"></div>
+    </div>
+  </div>
+</div>
+
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script type="text/javascript">
+    // Example queryURL for Giphy API
+
+    var animal_array=["cat","dog","horse"];
+
+    function displayAnimalInfo() {
+
+      $("#animals-view").empty();
+      var animal = $(this).attr("data-name");
+      //var queryURL = "http://www.omdbapi.com/?t=" + animal + "&y=&plot=short&apikey=40e9cece";
+      var queryURL = "http://api.giphy.com/v1/gifs/search?q=" + animal + "&api_key=dc6zaTOxFJmzC&limit=10";
+      $.ajax({
+        url: queryURL,
+        method: "GET"
+      })
+
+      // Check for done function 
+       .done(function(response) {
+        console.log(response);
+        var results=response.data;
+       // console.log(results);
+         for(var i=0;i<results.length;i++) {
+         // New image div
+          var newDiv=$("<div>");
+          var rating = results[i].rating;
+          newDiv.append("<p> Rating: " + rating);
+          var imageUrl = results[i].images.fixed_height.url;
+          var Image = $("<img class='gif col-md-12' height='120' width='150'>");
+          Image.attr("src",(results[i].images.original_still.url));   // Still URL
+
+         // add attributes to the image tag
+          Image.attr("data-state","still");
+          Image.attr("data-still",(results[i].images.original_still.url));
+          Image.attr("data-animate", imageUrl);         // Animated URL
+
+
+         // console.log(Image);
+          Image.attr("alt", "image");
+          newDiv.append(Image);
+
+
+         // Append to the div tag
+           $("#animals-view").prepend(newDiv);
+          }
+
+          $(".gif").on("click", function() {
+
+          var state = $(this).attr("data-state");
+          console.log(state); 
+          if (state === "still") {
+       
+            $(this).attr("src",$(this).attr("data-animate"));
+            $(this).attr("data-state","animate");
+          }
+          else {
+            $(this).attr("src",$(this).attr("data-still"));
+            $(this).attr("data-state","still");
+          }
+      });
+            });
+
+    }
+
+
+    function renderButtons() {
+
+        // (this is necessary otherwise you will have repeat buttons)
+        $("#buttons-view").empty();
+        // Loops through the array of movies
+        for (var i = 0; i < animal_array.length; i++) {
+
+          // Then dynamicaly generates buttons for each movie in the array
+          // This code $("<button>") is all jQuery needs to create the beginning and end tag. (<button></button>)
+          var a = $("<button>");
+          // Adds a class of movie to our button
+          a.addClass("animal");
+          // Added a data-attribute
+          a.attr("data-name", animal_array[i]);
+          // Provided the initial button text
+          a.text(animal_array[i]);
+          // Added the button to the buttons-view div
+          $("#buttons-view").append(a);
+        }
+      }
+
+
+
+
+    $("#add-animal").on("click", function() {
+      event.preventDefault();
+      // Ready the url on giphy page
+      //var queryURL = "http://api.giphy.com/v1/gifs/random?api_key=dc6zaTOxFJmzC&tag=cats";
+       var animal = $("#animal-input").val().trim();
+
+       if($("#animal-input").val() === "") {
+        alert("Please enter something!");
+       }
+      else if(animal_array.indexOf(animal) === -1) {
+        animal_array.push(animal);
+        renderButtons();
+       }
+       
+       else {
+        alert("Current animal is in the array! Please select another one");
+       }
+       
+      });
+
+      // Ajax call to get the response from the above url
+      
+      $(document).on("click", ".animal", displayAnimalInfo);
+
+      // Calling the renderButtons function to display the intial buttons
+      renderButtons();
+        
+        
+         
+     
+  </script>
+
+</body>
+
+</html>
